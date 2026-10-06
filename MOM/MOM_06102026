@@ -1,0 +1,222 @@
+# Radiology Cloud Platform – Meeting Summary
+
+## 1. Meeting Objective
+
+The team is developing a new cloud-based teleradiology/radiology platform using primarily Microsoft technologies, SQL Server, and AWS. A limited beta version is targeted for the end of November.
+
+The immediate focus for the next couple of weeks is:
+1. Review and secure the GitHub development setup.
+2. Establish an appropriate Git branching strategy.
+3. Build a proper CI/CD pipeline.
+4. Improve the deployment methodology.
+5. Review the existing AWS infrastructure.
+6. Design an appropriate AWS production deployment architecture.
+
+## 2. Current Application Architecture
+
+- Approximately three backend applications/microservices.
+- A React frontend application.
+- SQL Server database.
+- Applications currently deployed to EC2.
+- IIS is currently being used for application hosting.
+- SQL Server Express is running on another EC2 instance with multiple databases.
+- The backend services currently share the same database, so the architecture is not fully decoupled microservices.
+
+## 3. Current Deployment Process
+
+The current process is relatively manual:
+
+Developer Laptop → IIS/EC2 → Database
+
+- Developers use their laptops for development and testing.
+- Scripts are used for remote deployment.
+- Code is deployed to IIS.
+- There is a QA/staging environment.
+- Development-level testing is mainly performed on individual laptops.
+
+This is one of the primary areas where the DevOps process needs improvement.
+
+## 4. GitHub Situation
+
+Current state:
+- One main repository.
+- A GitHub organization already exists.
+- The organization is currently using an individual plan.
+- Required organization/team-level repository governance is therefore limited.
+
+Main concern:
+- Developers can currently commit directly to the main branch.
+
+The discussion covered:
+- Branch protection.
+- Feature branches.
+- Trunk-based development.
+- GitFlow.
+- QA validation.
+- Production release control.
+
+Initial recommendation:
+- Trunk-based development may be a good fit because the team performs multiple deployments per month.
+- Final strategy will be decided after reviewing the repository and development process.
+
+## 5. Proposed Environment Strategy
+
+Current effective flow:
+
+Developer Laptops → QA/Staging → Production
+
+A dedicated DEV environment should be considered:
+
+Developer → DEV → QA/UAT → Production
+
+Benefits:
+- Controlled testing.
+- Consistent deployment process.
+- Version tracking.
+- Better environment separation.
+- Reduced risk of untested code reaching production.
+
+The existing EC2/IIS environment could potentially become the UAT environment.
+
+## 6. AWS Architecture Discussion
+
+### Current
+
+EC2 + IIS + SQL Server Express
+
+The team does not want to simply reproduce the current IIS-on-EC2 approach for production.
+
+### Application Layer
+
+The discussion favored a more scalable and managed AWS deployment approach, potentially using AWS managed application services or ECS/container-based deployment.
+
+Key requirements:
+- Scalability/elasticity.
+- Lower operational maintenance.
+- Appropriate production architecture.
+- Avoid unnecessarily maintaining IIS on EC2 if a better managed/container-based approach is suitable.
+
+### Database Layer
+
+The current proposal is to keep SQL Server Express on EC2 because the database requirements are currently relatively small and the team does not believe RDS is necessary at this stage.
+
+The final architecture is not yet finalized and needs to be proposed after reviewing the existing environment.
+
+## 7. Expected DevOps Flow
+
+A target flow discussed during the meeting is:
+
+GitHub
+  ↓
+PR / Branch Protection
+  ↓
+CI / Build / Validation
+  ↓
+DEV
+  ↓
+QA / UAT
+  ↓
+Approval
+  ↓
+Production
+  ↓
+Monitoring
+
+The exact implementation needs to be finalized after reviewing the current code, scripts, infrastructure, and deployment documentation.
+
+## 8. Expected Responsibilities
+
+The DevOps/cloud responsibilities are expected to include:
+
+### Assessment
+- Review GitHub repository structure.
+- Review current deployment scripts.
+- Review deployment documentation.
+- Review AWS infrastructure.
+- Understand application architecture.
+- Understand existing DEV/QA/UAT/Production environments.
+
+### Design
+- Recommend Git branching strategy.
+- Recommend GitHub repository governance.
+- Design CI/CD architecture.
+- Recommend environment strategy.
+- Design AWS production deployment architecture.
+- Identify security and licensing requirements.
+
+### Implementation
+- Configure GitHub governance.
+- Implement CI/CD.
+- Automate deployments.
+- Establish DEV/QA/UAT/Production flow.
+- Implement AWS infrastructure/deployment changes.
+- Enable deployment/version tracking.
+
+## 9. Access and Information Required
+
+The team agreed to provide:
+
+### GitHub
+- GitHub user/access.
+- Repository access.
+
+### AWS
+- AWS user/access.
+
+### Communication
+- Official email ID.
+- Teams communication.
+- Personal Teams ID to be shared by the DevOps consultant because the team does not have a corporate Teams plan.
+
+### Documentation
+- Deployment documentation.
+- Deployment scripts.
+- Current configuration details.
+- AWS infrastructure information.
+
+## 10. Immediate Action Items
+
+| Priority | Action |
+|---|---|
+| High | Get GitHub access |
+| High | Get AWS access |
+| High | Get official email ID |
+| High | Get Teams access |
+| High | Review repository structure |
+| High | Review deployment scripts |
+| High | Review deployment documentation |
+| High | Review current AWS infrastructure |
+| Medium | Understand DEV/QA/UAT/Production requirements |
+| Medium | Propose Git branching strategy |
+| Medium | Propose CI/CD architecture |
+| Medium | Propose AWS production architecture |
+
+## 11. Immediate Next Steps
+
+1. Receive GitHub and AWS access.
+2. Receive official email ID and Teams access.
+3. Review the GitHub repository.
+4. Review deployment documentation and scripts.
+5. Understand the current AWS infrastructure.
+6. Understand the current application and database architecture.
+7. Identify gaps in the current environment.
+8. Prepare a proposed DevOps and AWS architecture.
+9. Discuss the proposal with the team.
+10. Finalize the implementation plan.
+11. Begin implementation after the plan is agreed.
+
+## 12. Key Takeaway
+
+The expectation is not to immediately start implementing pipelines.
+
+The first responsibility is to understand the existing environment and then propose a practical DevOps/AWS solution.
+
+The intended transformation is broadly:
+
+Current:
+Laptop → Manual Scripts → IIS/EC2 → SQL Server
+
+Target:
+GitHub → PR/Branch Protection → CI → Security/Validation → DEV → QA/UAT → Approval → Production → Monitoring
+
+The final architecture and implementation approach will be confirmed after the repository, deployment process, documentation, and AWS infrastructure have been reviewed.
