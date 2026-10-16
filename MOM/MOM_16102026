@@ -1,0 +1,216 @@
+# Minutes of Meeting (MoM)
+## Radexcel Application — DevOps, CI/CD, and Environment Readiness
+
+**Meeting date:** 16 October 2026 *(based on the conversation context; verify if needed)*  
+**Next meeting:** Friday, 23 October 2026, at 11:00 AM  
+**Primary repository in scope:** `Radexcel-app`  
+**Related repository:** `Radexcel UX`  
+**Purpose:** Review the current application and deployment setup, agree on the initial GitHub workflow improvements, and identify the steps required for a reliable development, staging, and future production delivery process.
+
+---
+
+## 1. Meeting Summary
+
+The team reviewed the current Radexcel application repositories and deployment approach. Development currently takes place on developers’ laptops, with Docker Compose used for local execution. The existing AWS staging setup runs on an EC2 instance with IIS, and deployments are largely manual. A production environment is not yet ready.
+
+The immediate focus is to improve GitHub repository governance and introduce CI/CD workflows while preserving the existing deployment process until the new workflows have been validated. The team also discussed establishing a shared development environment, adding automated testing and security checks, controlling deployments to staging, and planning for production readiness later.
+
+## 2. Current State
+
+- Two repositories were discussed: `Radexcel-app` and `Radexcel UX`.
+- The initial implementation focus is `Radexcel-app`.
+- The application currently includes:
+  - Authentication API
+  - Company API
+  - React-based frontend
+  - Database
+  - Redis and a local authentication setup used to simulate the AWS Cognito part during local development
+- Additional APIs may be introduced in the future.
+- Developers use local Docker Compose to run the application and related components.
+- The existing staging environment is hosted on an EC2 instance running IIS.
+- Production is not yet established.
+- Deployment scripts already exist for API, UI, and database-related deployment tasks.
+- AWS Secrets Manager is used for secrets; the team mentioned secrets with a `dev_` prefix.
+- A formal automated testing strategy was not identified during the discussion.
+- The team uses GitHub and Jira, but formal Jira–GitHub integration was deferred for now.
+
+## 3. Discussion and Decisions
+
+### 3.1 GitHub repository governance
+
+**Direction discussed**
+- Introduce a trunk-based branching strategy.
+- Keep `main` as the primary branch and use short-lived feature branches.
+- Use pull requests rather than allowing direct changes to `main`.
+- Configure appropriate repository permissions and review rules.
+
+**Status:** Agreed direction; detailed branch protection and review settings still need to be implemented and verified.
+
+### 3.2 CI/CD workflows
+
+**Direction discussed**
+- Introduce GitHub Actions workflows for continuous integration and deployment.
+- Review and reuse the existing PowerShell deployment scripts where practical.
+- Make the new workflow work without disrupting the current manual deployment process.
+- Review how build artifacts should be stored. GitHub Container Registry was suggested, but the appropriate storage approach depends on the artifact types produced.
+
+**Status:** Planned; workflow implementation and artifact-storage choice remain outstanding.
+
+### 3.3 Development and staging environments
+
+**Direction discussed**
+- Establish a shared development environment rather than relying only on local laptops.
+- Continue using staging for QA and validation.
+- Keep staging configuration aligned with the intended production configuration.
+- The team discussed a small development group; the transcript mentions up to six developers.
+
+**Status:** Shared development environment is a recommendation to be implemented. Hosting design and resource sizing require further assessment.
+
+### 3.4 Testing and security
+
+**Direction discussed**
+- Define a testing strategy covering suitable unit, integration, smoke, and deployment checks.
+- Evaluate GitHub-provided security capabilities, including CodeQL and Dependabot.
+- Check which features are available under the current GitHub plan and whether an organization/team plan is required.
+- Decide which checks should be required before code can be merged or deployed.
+
+**Status:** Planned; exact test coverage, plan eligibility, and enforcement rules need confirmation.
+
+### 3.5 Staging deployment approval
+
+**Direction discussed**
+- Allow developers to deploy to the development environment without the proposed staging approval gate.
+- Require approval before deployment to staging.
+- The discussion named Pavel and Kamal/Kamal’s team lead role as potential approvers, with either one able to approve. Confirm the exact GitHub usernames and intended approver group before configuration.
+- No change-request workflow was considered necessary for staging at this stage.
+
+**Status:** Approval approach discussed; approver identities and GitHub environment rules remain to be configured.
+
+### 3.6 Secrets and AWS access
+
+**Current understanding**
+- Secrets are held in AWS Secrets Manager.
+- Secrets with a `dev_` prefix were mentioned.
+
+**Follow-up**
+- Confirm how development and staging secrets are separated.
+- Configure least-privilege access for deployment workflows.
+- Ensure secrets are never printed in workflow logs.
+- Prefer a secure GitHub-to-AWS authentication method and avoid long-lived credentials where feasible.
+
+**Status:** Existing secret storage was confirmed in the discussion; the proposed workflow access model still needs design and validation.
+
+### 3.7 Jira integration
+
+- Jira identifiers are already present in some commits.
+- Formal Jira–GitHub integration was considered secondary and deferred until a later stage, potentially when production change-control requirements are established.
+- Work should continue to be tracked through the team’s existing process.
+
+**Status:** Deferred.
+
+---
+
+## 4. Deployment Scripts to Review
+
+The meeting referenced the following scripts. Their exact locations, responsibilities, parameters, and execution requirements must be confirmed in the repository.
+
+| Script | Purpose discussed | Follow-up |
+|---|---|---|
+| `build_api.ps1` | API build/deployment preparation | Review inputs, outputs, exit codes, and dependencies |
+| UI PowerShell build script | Build/package the frontend | Confirm the exact filename and validate build behavior |
+| `deployment_db.ps1` | Database deployment-related task | Review migration safety and execution order |
+| `publish_api_remote.ps1` | Publish/deploy API remotely | Validate target configuration, permissions, and error handling |
+| `deploy_db.ps1` | Deploy database changes | Add safeguards, verification, and recovery guidance |
+
+The meeting did not establish all script details. Confirm the implementation before wiring the scripts into GitHub Actions.
+
+---
+
+## 5. Action Items
+
+Owners are marked **TBD** where the meeting did not clearly assign an individual. The person coordinating the GitHub/DevOps work should confirm ownership with the team.
+
+| ID | Action item | Owner | Priority | Status |
+|---|---|---|---|---|
+| A1 | Review the `Radexcel-app` repository structure and existing deployment scripts | DevOps lead / TBD | High | Planned |
+| A2 | Define and implement trunk-based branching, pull requests, and protection for `main` | DevOps lead / TBD | High | Planned |
+| A3 | Configure repository access and required review rules | DevOps lead / repository admin TBD | High | Planned |
+| A4 | Implement the initial GitHub Actions CI workflow | DevOps lead / TBD | High | Planned |
+| A5 | Define build and test commands for the API, UI, and database-related changes | DevOps + development team / TBD | High | Open |
+| A6 | Evaluate CodeQL, Dependabot, and GitHub plan/organization requirements | DevOps lead / GitHub organization owner TBD | High | Planned |
+| A7 | Decide where build artifacts should be stored | DevOps lead + team / TBD | Medium | Open |
+| A8 | Assess and plan a shared AWS development environment | DevOps + application team / TBD | High | Open |
+| A9 | Review AWS Secrets Manager usage and design secure workflow access | DevOps / AWS administrator TBD | High | Open |
+| A10 | Configure staging deployment approval with the agreed approver group | DevOps lead / TBD | High | Planned |
+| A11 | Automate API and database deployment using the existing scripts where suitable | DevOps lead / TBD | High | Planned |
+| A12 | Define smoke tests, rollback steps, and deployment-failure handling | DevOps + application team / TBD | High | Open |
+| A13 | Document the target development, staging, and future production architecture | DevOps lead + application team / TBD | Medium | Open |
+| A14 | Revisit Jira–GitHub integration when required by the delivery/change-control process | Team / TBD | Low for current phase | Deferred |
+
+---
+
+## 6. Proposed Timeline
+
+The following timeline combines the next-week objective stated in the meeting with a suggested sequence for the remaining work. Only the next meeting date and the initial next-week focus were discussed explicitly; later milestones are proposals.
+
+| Target | Focus | Expected outcome |
+|---|---|---|
+| 16–18 October 2026 | Repository and script assessment; confirm workflow design | Implementation checklist and known dependencies |
+| 19–21 October 2026 | Branching, repository access, PR controls, initial CI workflow | First version of GitHub governance and CI |
+| 22–23 October 2026 | Validate changes and prepare a demonstration | Review-ready workflow and list of gaps |
+| Friday, 23 October 2026, 11:00 AM | Follow-up team meeting | Review progress, blockers, and next steps |
+| Subsequent milestone | Development and staging deployment automation | Repeatable deployment with verification and staging approval |
+| Later milestone | Production readiness assessment | Agreed architecture and release-readiness checklist |
+
+---
+
+## 7. Open Questions and Dependencies
+
+1. What is the intended hosting architecture for the future microservices: IIS on EC2, container-based hosting, or another AWS service?
+2. Does the current GitHub plan support the required CodeQL and Dependabot capabilities? What organization/team plan is appropriate?
+3. What artifact types do the API, UI, and database build processes produce, and where should each be stored?
+4. Which automated tests already exist, and what should be the minimum required test suite?
+5. How will the shared development environment be provisioned, accessed, monitored, and maintained?
+6. Are development and staging secrets separated, and what IAM permissions will the GitHub workflows require?
+7. Which exact GitHub users or teams should be authorized to approve staging deployments?
+8. What rollback procedure is safe for application releases and database migrations?
+9. When should production requirements and Jira/change-request integration be revisited?
+
+---
+
+## 8. Success Criteria
+
+The initial GitHub/CI milestone will be considered successful when:
+
+- [ ] `main` is protected according to the agreed repository policy.
+- [ ] Developers can work through feature branches and pull requests.
+- [ ] Required CI checks run automatically and report their results.
+- [ ] Security-check availability and enforcement rules are documented.
+- [ ] Existing manual deployments remain usable while the new process is validated.
+- [ ] The team has a documented next step for development and staging automation.
+
+The later deployment milestone will be successful when:
+
+- [ ] Application deployment is repeatable through GitHub Actions.
+- [ ] Staging deployments require the agreed approval.
+- [ ] Deployment verification and failure handling are documented and tested.
+- [ ] Secrets are accessed securely and are not exposed in logs.
+- [ ] Development and staging behavior is validated before production planning is finalized.
+
+---
+
+## 9. Next Meeting
+
+**Date:** Friday, 23 October 2026  
+**Time:** 11:00 AM *(timezone not explicitly stated in the transcript; confirm with attendees)*
+
+### Suggested agenda
+1. Demonstrate the branching and pull-request setup.
+2. Review the initial GitHub Actions CI workflow.
+3. Review security-scanning and GitHub plan findings.
+4. Discuss blockers and required developer input.
+5. Confirm owners and dates for development and staging automation.
+
+---
+
+*Prepared from the meeting transcript. Items described as “planned,” “proposed,” “open,” or “TBD” require implementation or confirmation and should not be treated as completed decisions.*
