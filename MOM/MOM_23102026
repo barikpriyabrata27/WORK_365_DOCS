@@ -1,1 +1,138 @@
+# GitHub Actions CI/CD Planning Meeting — Summary
+
+**Meeting date:** 23 October 2026  
+**Topic:** GitHub branching and CI/CD implementation, self-hosted runners, security scanning, and artifact storage  
+**Next meeting:** Friday, 30 October 2026, at 11:00 AM  
+**Target:** Have an initial automated CI/CD workflow ready for testing by the end of the following week.
+
+---
+
+## 1. Executive Summary
+
+The team agreed to deliver the CI/CD implementation in two phases. For the initial phase, a laptop will act as a **self-hosted GitHub Actions runner**. Workflow steps will execute on that laptop, while the application will continue to be deployed to AWS.
+
+For the next phase, the team will evaluate a permanent build/deployment setup, comparing the cost and performance of a dedicated build machine with managed services. The team also plans to move toward CI-generated artifacts stored in GitHub Actions, reducing manual artifact handling.
+
+## 2. Decisions and Discussion
+
+### Phase 1 — Initial setup
+
+- Use an existing laptop as the self-hosted GitHub Actions runner.
+- Run intermediate CI/CD workflow steps on the laptop.
+- Continue deploying the application to AWS; the laptop is the runner, not the deployment target.
+- Test the initial automated workflow before investing in additional infrastructure.
+
+### Phase 2 — More automated, shared infrastructure
+
+- Reduce dependence on an individual laptop.
+- Evaluate a dedicated build machine versus managed services.
+- Choose an approach based on cost, performance, reliability, and avoiding unnecessary infrastructure bottlenecks.
+- The final infrastructure choice is **not yet decided**.
+
+### Build and runner options mentioned in the meeting
+
+The transcript specifically mentions the following options and concepts:
+
+| Option / tool | How it came up in the discussion | Status |
+|---|---|---|
+| **GitHub Actions self-hosted runner** | A laptop will initially execute workflow steps. | Agreed for Phase 1 |
+| **Dedicated / own build machine** | Suggested as a potentially cheaper long-term option because build CPU time can increase service costs. | To evaluate |
+| **AWS App Runner** | Arijit raised App Runner as an example of a managed service to compare with running an own build machine. | Mentioned as an option; not selected |
+| **Managed, scalable services** | Discussed in general in relation to cost and resource usage. | Compare against a dedicated machine |
+
+**Important:** App Runner was mentioned as an example during the discussion, not as an approved solution. The transcript does not name other specific runner products or build tools.
+
+### Cost and performance considerations
+
+- Managed, scalable services can incur higher costs when builds consume CPU resources.
+- A dedicated build machine may be more economical for the expected workload.
+- The team agreed not to spend disproportionately on the runner if the workload does not require it.
+- Build duration should be balanced against cost; reducing a build by a few minutes may not justify a large increase in expense.
+- The implementation lead will investigate the alternatives and recommend a suitable option.
+
+### CodeQL and Dependabot
+
+- CodeQL and Dependabot are planned for a later step, once the required GitHub plan/features or access are available.
+- GitHub plan/access limitations remain a blocker for this work.
+
+### Artifact storage and deployment
+
+The current process was described as creating artifacts during deployment, then manually downloading and using them. The current retention period was described as 14 days.
+
+The proposed process is:
+
+1. CI builds the application and generates the artifact.
+2. GitHub Actions stores the artifact.
+3. The deployment workflow retrieves and uses that artifact for AWS deployment.
+4. The team verifies and configures the appropriate retention period.
+
+A retention period of approximately **45 days** was discussed, but it must be verified against the repository's plan and configuration before being finalized.
+
+## 3. Proposed CI/CD Flow
+
+```text
+Code change / pull request
+          |
+          v
+GitHub Actions workflow
+          |
+          v
+Self-hosted runner (laptop in Phase 1)
+          |
+          v
+Build, checks, and artifact creation
+          |
+          v
+GitHub Actions artifact storage
+          |
+          v
+Deployment workflow
+          |
+          v
+AWS deployment target
+```
+
+This is the intended direction discussed in the meeting; individual workflow stages and security gates still need to be implemented and tested.
+
+## 4. Action Items
+
+| # | Action | Owner | Status |
+|---|---|---|---|
+| 1 | Help arrange the required Teams/GitHub plan or access. | Arijit | Pending |
+| 2 | Configure and validate the laptop-based self-hosted runner. | Implementation team | Planned |
+| 3 | Automate the existing build and AWS deployment process. | Implementation team | In progress / planned |
+| 4 | Evaluate a dedicated build machine against AWS App Runner and other suitable managed options. | Implementation lead | Pending |
+| 5 | Compare the options for cost, performance, reliability, and resource bottlenecks. | Implementation lead | Pending |
+| 6 | Configure CI to generate and store artifacts in GitHub Actions. | Implementation team | Planned |
+| 7 | Verify the available artifact retention limits and select a retention period. | Implementation team | Pending |
+| 8 | Address CodeQL and Dependabot once the required GitHub capabilities are available. | Implementation team | Blocked by plan/access |
+| 9 | Prepare an initial automated CI/CD workflow for team testing. | Implementation team | Target: end of the following week |
+
+## 5. Open Questions / Risks
+
+- Which GitHub plan or access change is required, and when will it be available?
+- Will a dedicated build machine be more economical than AWS App Runner or another managed option?
+- What are the expected build frequency, duration, and resource requirements?
+- What artifact retention period is needed, and what does the current GitHub plan support?
+- Which CodeQL and Dependabot capabilities can be enabled under the available GitHub plan?
+
+## 6. Timeline and Follow-up
+
+- **By the end of the following week:** Prepare an initial automated CI/CD workflow for testing.
+- **Friday, 30 October 2026, 11:00 AM:** Next status meeting.
+- **Ongoing:** Hold a short weekly status call (expected to be under 30 minutes) to keep everyone aligned.
+
+## 7. Immediate Priorities
+
+1. Get the initial self-hosted runner working.
+2. Automate the current build and AWS deployment steps.
+3. Generate and reuse artifacts through GitHub Actions rather than handling them manually.
+4. Test the end-to-end workflow and record issues.
+5. Investigate the long-term build infrastructure and GitHub plan dependencies.
+
+---
+
+## Meeting Outcome
+
+The team aligned on a phased approach: **start with a laptop-based GitHub Actions self-hosted runner, continue deploying to AWS, and then evaluate a more permanent build platform with cost optimization in mind**. Artifact handling will move toward CI-generated artifacts stored in GitHub Actions. CodeQL and Dependabot remain dependent on resolving GitHub plan/access limitations.
 
